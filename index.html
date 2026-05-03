@@ -4,10 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <link href="./style.css" rel="stylesheet">
 </head>
 <body>
+    <h2>Rock, paper, scissors, shoot!</h2>
+    <h3 id="round-para">Round: 1</h3>
+    <h3 id="score-para">Player: 0, Computer: 0</h3>
+    <div id="buttonBox">
+        <button class="selectionButton" id="rockButton">Rock</button>
+        <button class="selectionButton" id="paperButton">Paper</button>
+        <button class="selectionButton" id="scissorsButton">Scissors</button>
+    </div>
+    <div id="results-container"></div>
+
     <script>
-        console.log('Use "playGame()" to play five rounds of Rock, Paper, Scissors!');
         let humanScore = 0
         let computerScore = 0
             //Generate a random number from 0 to 1 and store it in variable RNG
@@ -61,53 +71,101 @@
             //convert human choice to all lowercase
             return prompt("Rock, paper, scissors, shoot!").toLowerCase();
         }
+      
+        let roundNumber = 1;
 
-        function playRound() {
+        function gameReset() {
+            roundNumber = 1;
+            roundPara.textContent = `Round: 1`;
+            scorePara.textContent = `Player: 0, Computer: 0`;
+            humanScore = 0;
+            computerScore = 0;
+        };
+
+        let resetReady = false
+        const resultsContainer = document.querySelector("#results-container");
+        const roundPara = document.querySelector("#round-para");
+        const scorePara = document.querySelector("#score-para");
+
+        function playRound(choice) {
+            if (resetReady) {
+                roundNumber = 1;
+                roundPara.textContent = `Round: 1`;
+                scorePara.textContent = `Player: 0, Computer: 0`;
+                humanScore = 0;
+                computerScore = 0;
+                while (resultsContainer.firstChild) {
+                    resultsContainer.removeChild(resultsContainer.firstChild);
+                }
+                resetReady = false;
+            }
+            let roundWin = "draw";
+            const resultsPara = document.createElement("p");
             //store human choice in string
-            const humanChoice = getHumanChoice();
+            const humanChoice = choice.toLowerCase();
             //show human choice to player
-            console.log(`You chose ${humanChoice}.`)
+            resultsPara.textContent = `You chose ${humanChoice}.`;
             //store computer choice in string
             const computerChoice = getComputerChoice();
             //if choices are identical, announce tie, do not increment score
             if (humanChoice == computerChoice) {
-                console.log(`The computer chose ${computerChoice}. It's a draw!`);
+                roundWin = "draw";
             //if human chooses rock and computer chooses scissors, announce human win and increment human score by 1
             //if human chooses rock and computer chooses paper, announce computer win and increment computer score by 1
             } else if (humanChoice == "rock") {
                 if (computerChoice == "scissors") {
                     humanScore++;
-                    console.log(`The computer chose ${computerChoice}. The player wins!`);
+                    roundWin = "playerWin";
                 } else {
                     computerScore++;
-                    console.log(`The computer chose ${computerChoice}. The computer wins!`);
+                    roundWin = "computerWin";
                 }
             //if human chooses paper and computer chooses rock, announce human win and increment human score by 1
             //if human chooses paper and computer chooses scissors, announce computer win and increment computer score by 1
             } else if (humanChoice == "paper") {
                 if (computerChoice == "rock") {
                     humanScore++;
-                    console.log(`The computer chose ${computerChoice}. The player wins!`);
+                    roundWin = "playerWin";
                 } else {
                     computerScore++;
-                    console.log(`The computer chose ${computerChoice}. The computer wins!`);
-                }
+                    roundWin = "computerWin";             }
             //if human chooses scissors and computer chooses paper, announce human win and increment human score by 1
             //if human chooses scissors and computer chooses rock, announce computer win and increment computer score by 1
             } else if (humanChoice == "scissors") {
                 if (computerChoice == "paper") {
                     humanScore++;
-                    console.log(`The computer chose ${computerChoice}. The player wins!`);
+                    roundWin = "playerWin"
                 } else {
                     computerScore++;
-                    console.log(`The computer chose ${computerChoice}. The computer wins!`);
+                    roundWin = "computerWin"
                 }
             }
             //return the total score
-            console.log(`Player: ${humanScore}, computer: ${computerScore}`);
+            if (roundWin == "playerWin") {
+                resultsPara.textContent = `You chose ${humanChoice}. The computer chose ${computerChoice}. You win!`;
+            } else if (roundWin == "computerWin") {
+                resultsPara.textContent = `You chose ${humanChoice}. The computer chose ${computerChoice}. The computer wins!`;
+            } else if (roundWin == "draw") {
+                resultsPara.textContent = `You chose ${humanChoice}. The computer chose ${computerChoice}. It's a draw!`;
+            }
+            resultsContainer.insertBefore(resultsPara, resultsContainer.firstChild);
+            scorePara.textContent = `Player: ${humanScore}, Computer: ${computerScore}`;
+            if (roundNumber == 5) {
+                if (humanScore > computerScore) {
+                    roundPara.textContent = `You win the game!`;
+                } else if (computerScore > humanScore) {
+                    roundPara.textContent = `The computer wins the game!`;
+                } else {
+                    roundPara.textContent = `The game is a draw!`;
+                };
+                resetReady = true;
+            } else {
+                roundNumber ++;
+                roundPara.textContent = `Round: ${roundNumber}`;
+            };
         }
 
-        function playGame() {
+        /*function playGame() {
             //assign variable roundNumber to 1
             let roundNumber = 1;
             //reset human and computer scores
@@ -127,7 +185,15 @@
             } else if (humanScore < computerScore) {
                 return `Player score: ${humanScore}, computer score: ${computerScore}. The computer wins the game!`;
             }
-        }
+        }*/
+
+        const selectButtons = document.querySelectorAll(".selectionButton");
+        selectButtons.forEach((selectButton) => {
+            selectButton.addEventListener("click", function (e) {
+                const pressedButton = e.target.textContent;
+                playRound(pressedButton);
+            });
+        });
 
         function promptPrimes() {
             let n = prompt("Enter a number:", 0);
